@@ -1,0 +1,18 @@
+{
+  "name": "Scanner Pro v2.7 VIP",
+  "short_name": "ScannerPro",
+  "description": "Cloudflare & Subdomain Hunter by Mas Angga",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1042/1042331.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
