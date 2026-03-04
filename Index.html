@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Scanner Pro v2.7 (VIP & Poin System)</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1042/1042331.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { emerald: { 600: '#059669' }, orange: { 500: '#f97316' } } } }
-        }
-    </script>
+    
     <style>
         body { background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
         .glass-card { background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
@@ -20,163 +23,217 @@
         .ping-fast { color: #15803d; border-left: 3px solid #22c55e; background: #f0fdf4; } 
         .ping-med { color: #b45309; border-left: 3px solid #f97316; background: #fff7ed; } 
         .ping-slow { color: #b91c1c; border-left: 3px solid #ef4444; background: #fef2f2; }
-        .tab-active { background-color: #1f2937; color: white; border-color: #1f2937; }
-        .tab-inactive { background-color: white; color: #6b7280; border-color: #e5e7eb; }
-        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .item-enter { animation: slideIn 0.3s ease-out forwards; }
-        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .toast-enter { animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .tab-active { background-color: #1f2937; color: white; border-color: #1f2937; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .tab-inactive { background-color: transparent; color: #6b7280; border-color: transparent; }
+        
+        /* Animasi Elegan */
+        @keyframes slideDownSmooth { 
+            0% { transform: translateY(-20px) scale(0.95); opacity: 0; } 
+            100% { transform: translateY(0) scale(1); opacity: 1; } 
+        }
+        @keyframes fadeOutUp { 
+            0% { transform: translateY(0) scale(1); opacity: 1; } 
+            100% { transform: translateY(-20px) scale(0.95); opacity: 0; } 
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .toast-enter { animation: slideDownSmooth 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-exit { animation: fadeOutUp 0.3s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
+        .modal-enter { animation: fadeIn 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="text-gray-800 h-screen flex flex-col overflow-hidden relative">
+<body class="text-gray-800 h-screen flex flex-col overflow-hidden relative selection:bg-emerald-200">
 
-    <div id="toastContainer" class="fixed top-14 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-2 w-[90%] max-w-[350px] pointer-events-none items-center"></div>
+    <div id="toastContainer" class="fixed top-10 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-3 w-[90%] max-w-[340px] pointer-events-none items-center"></div>
 
-    <header class="px-6 pt-6 pb-2 bg-white sticky top-0 z-10 border-b border-gray-100 shadow-sm flex flex-col gap-2">
+    <header class="px-6 pt-6 pb-3 bg-white sticky top-0 z-10 border-b border-gray-100 shadow-sm flex flex-col gap-2 relative">
         <div class="flex justify-between items-center w-full">
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-gray-800">Scanner <span class="text-emerald-600">v2.7</span></h1>
-                <p class="text-[10px] text-gray-500 font-medium">Cloudflare & Subdomain Hunter</p>
+                <h1 class="text-xl font-extrabold tracking-tight text-gray-900">Scanner <span class="text-emerald-600">v2.7</span></h1>
+                <p class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mt-0.5">Cloudflare & Sub Hunter</p>
             </div>
-            <div id="statusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">IDLE</div>
+            <div id="statusBadge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 tracking-wider">IDLE</div>
         </div>
-        <div class="flex items-center mt-1">
-            <div id="freeBadge" class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-200 text-gray-600 shadow-sm">Mode Gratis</div>
-            <div id="vipBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-sm flex items-center gap-1">
-                <i class="fas fa-coins"></i> <span id="pointsValue">?</span> Poin
+        <div class="flex items-center mt-2">
+            <div id="freeBadge" class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">Mode Gratis</div>
+            <div id="vipBadge" class="hidden px-2.5 py-1 rounded-md text-[10px] font-bold bg-gradient-to-r from-gray-900 to-gray-800 text-yellow-400 shadow-md border border-gray-700 flex items-center gap-1.5">
+                <i class="fas fa-crown text-yellow-400"></i> VIP: <span id="pointsValue" class="text-white">?</span> Poin
             </div>
         </div>
-        <div class="h-1 w-full bg-gray-100 rounded-full mt-2 overflow-hidden">
-            <div id="progressBar" class="h-full bg-emerald-600 w-0 transition-all duration-300 ease-out"></div>
+        <div class="absolute bottom-0 left-0 h-0.5 w-full bg-gray-100">
+            <div id="progressBar" class="h-full bg-emerald-500 w-0 transition-all duration-300 ease-out"></div>
         </div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-5 pb-32 no-scrollbar" id="mainContainer">
         <div id="viewHome" class="space-y-5">
-            <div class="glass-card p-5">
+            <div class="glass-card p-5 border border-gray-100">
                 <div class="flex justify-between items-center mb-3">
-                    <label class="text-sm font-bold text-gray-700">Target Domains</label>
+                    <label class="text-xs font-bold text-gray-800 uppercase tracking-wide">Target Domains</label>
                     <div class="flex gap-2">
-                        <button id="btnGrabSub" class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-bold border border-blue-100 hover:bg-blue-100 transition active:scale-95 flex items-center gap-1">
-                            <i class="fas fa-search"></i> Grab Subs
+                        <button id="btnGrabSub" class="text-[10px] bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-100 transition active:scale-95 flex items-center gap-1.5 border border-emerald-100">
+                            <i class="fas fa-radar"></i> Grab Subs
                         </button>
-                        <button class="text-[10px] text-gray-400 hover:text-red-500 px-2 py-1 rounded transition" id="clearBtn">Clear</button>
+                        <button class="text-[10px] text-gray-400 hover:text-red-500 px-2 py-1 rounded transition font-bold" id="clearBtn">Clear</button>
                     </div>
                 </div>
-                <textarea id="domainsInput" class="w-full h-32 input-soft p-3 text-xs font-mono resize-none text-gray-600" placeholder="Masukkan domain (contoh: udemy.com)"></textarea>
+                <textarea id="domainsInput" class="w-full h-32 input-soft p-3 text-xs font-mono resize-none text-gray-600 leading-relaxed shadow-inner" placeholder="Masukkan target (contoh: udemy.com)"></textarea>
             </div>
             
             <div class="grid grid-cols-3 gap-3">
-                <div class="glass-card p-3 text-center border border-gray-50">
-                    <div class="text-[10px] text-gray-400 font-bold tracking-wider">TOTAL</div>
-                    <div id="statTotal" class="text-xl font-bold text-gray-700">0</div>
+                <div class="glass-card p-4 text-center border border-gray-100 flex flex-col justify-center">
+                    <div class="text-[9px] text-gray-400 font-bold tracking-widest mb-1">TOTAL</div>
+                    <div id="statTotal" class="text-2xl font-black text-gray-800">0</div>
                 </div>
-                <div class="glass-card p-3 text-center border border-emerald-50 bg-emerald-50/30">
-                    <div class="text-[10px] text-emerald-600 font-bold tracking-wider">ACTIVE</div>
-                    <div id="statActive" class="text-xl font-bold text-emerald-600">0</div>
+                <div class="glass-card p-4 text-center border border-emerald-100 bg-emerald-50/50 flex flex-col justify-center">
+                    <div class="text-[9px] text-emerald-600 font-bold tracking-widest mb-1">ACTIVE</div>
+                    <div id="statActive" class="text-2xl font-black text-emerald-600">0</div>
                 </div>
-                <div class="glass-card p-3 text-center border border-orange-100 bg-orange-50">
-                    <div class="text-[10px] text-orange-600 font-bold tracking-wider">CF IPs</div>
-                    <div id="statCf" class="text-xl font-bold text-orange-600">0</div>
+                <div class="glass-card p-4 text-center border border-orange-100 bg-orange-50/50 flex flex-col justify-center">
+                    <div class="text-[9px] text-orange-600 font-bold tracking-widest mb-1">CF IPs</div>
+                    <div id="statCf" class="text-2xl font-black text-orange-600">0</div>
                 </div>
             </div>
 
-            <div class="glass-card p-4">
-                <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase">Export & Tools</h3>
+            <div class="glass-card p-5 border border-gray-100">
+                <h3 class="text-[10px] font-bold text-gray-400 mb-3 tracking-widest uppercase">Export Tools</h3>
                 <div class="grid grid-cols-2 gap-3">
-                    <button id="btnCopyActive" class="py-3 bg-white text-gray-600 text-xs font-bold rounded-xl border border-gray-200 shadow-sm active:bg-gray-50 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-copy text-blue-500"></i> Salin Aktif
+                    <button id="btnCopyActive" class="py-3 bg-gray-50 text-gray-700 text-[11px] font-bold rounded-xl border border-gray-200 active:bg-gray-100 transition flex items-center justify-center gap-2 hover:shadow-sm">
+                        <i class="fas fa-copy text-gray-400"></i> Salin Aktif
                     </button>
-                    <button id="btnShareData" class="py-3 bg-white text-gray-600 text-xs font-bold rounded-xl border border-gray-200 shadow-sm active:bg-gray-50 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-share-nodes text-emerald-500"></i> Share Hasil
+                    <button id="btnShareData" class="py-3 bg-gray-900 text-white text-[11px] font-bold rounded-xl border border-gray-800 shadow-md shadow-gray-900/20 active:scale-[0.98] transition flex items-center justify-center gap-2">
+                        <i class="fas fa-share-nodes text-emerald-400"></i> Share Hasil
                     </button>
                 </div>
             </div>
         </div>
 
-        <div id="viewResults" class="hidden space-y-3">
-            <div class="sticky top-0 z-20 bg-[#f3f4f6] pb-2 pt-1 flex gap-2 overflow-x-auto no-scrollbar">
-                <button onclick="applyFilter('all')" id="tab-all" class="px-4 py-1.5 rounded-full text-[10px] font-bold border transition tab-active shadow-sm whitespace-nowrap">ALL</button>
-                <button onclick="applyFilter('cf')" id="tab-cf" class="px-4 py-1.5 rounded-full text-[10px] font-bold border transition tab-inactive shadow-sm whitespace-nowrap flex items-center gap-1"><i class="fas fa-cloud"></i> CLOUDFLARE</button>
-                <button onclick="applyFilter('non-cf')" id="tab-non-cf" class="px-4 py-1.5 rounded-full text-[10px] font-bold border transition tab-inactive shadow-sm whitespace-nowrap">NON-CF</button>
+        <div id="viewResults" class="hidden space-y-4">
+            <div class="sticky top-0 z-20 bg-[#f3f4f6] pb-3 pt-1 flex gap-1 overflow-x-auto no-scrollbar">
+                <button onclick="applyFilter('all')" id="tab-all" class="px-5 py-2 rounded-full text-[10px] font-bold transition tab-active whitespace-nowrap">SEMUA</button>
+                <button onclick="applyFilter('cf')" id="tab-cf" class="px-5 py-2 rounded-full text-[10px] font-bold transition tab-inactive whitespace-nowrap flex items-center gap-1.5"><i class="fas fa-cloud text-orange-500"></i> CLOUDFLARE</button>
+                <button onclick="applyFilter('non-cf')" id="tab-non-cf" class="px-5 py-2 rounded-full text-[10px] font-bold transition tab-inactive whitespace-nowrap">NON-CF</button>
             </div>
             <div id="resultList" class="space-y-3 pb-10 min-h-[200px]">
-                <div class="flex flex-col items-center justify-center mt-16 opacity-50">
-                    <i class="fas fa-satellite-dish text-4xl text-gray-300 mb-2"></i>
-                    <p class="text-sm text-gray-400">Ready to scan...</p>
+                <div class="flex flex-col items-center justify-center mt-20 opacity-40">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-3"><i class="fas fa-satellite-dish text-2xl text-gray-400"></i></div>
+                    <p class="text-xs font-semibold text-gray-500 tracking-wide">Menunggu perintah scan...</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="fixed bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 px-6 py-3 flex justify-between z-20 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
-        <button class="nav-item text-emerald-600 w-12 flex flex-col items-center gap-1 transition" onclick="switchTab('viewHome', this)"><i class="fas fa-home text-xl"></i><span class="text-[9px] font-bold">HOME</span></button>
-        <button class="nav-item text-gray-400 w-12 flex flex-col items-center gap-1 transition" onclick="switchTab('viewResults', this)"><i class="fas fa-bolt text-xl"></i><span class="text-[9px] font-bold">SCAN</span></button>
+    <nav class="fixed bottom-0 w-full bg-white/95 backdrop-blur-lg border-t border-gray-100 px-6 py-3 flex justify-between z-20 pb-safe shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.03)]">
+        <button class="nav-item text-emerald-600 w-12 flex flex-col items-center gap-1.5 transition" onclick="switchTab('viewHome', this)"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold tracking-wide">HOME</span></button>
+        <button class="nav-item text-gray-400 w-12 flex flex-col items-center gap-1.5 transition hover:text-gray-600" onclick="switchTab('viewResults', this)"><i class="fas fa-bolt text-lg"></i><span class="text-[9px] font-bold tracking-wide">SCAN</span></button>
         <div class="w-12"></div>
-        <button class="text-gray-400 w-12 flex flex-col items-center gap-1 transition active:text-gray-800" id="btnSettings"><i class="fas fa-sliders text-xl"></i><span class="text-[9px] font-bold">SET</span></button>
-        <button class="text-gray-400 w-12 flex flex-col items-center gap-1 transition active:text-gray-800" onclick="location.reload()"><i class="fas fa-rotate text-xl"></i><span class="text-[9px] font-bold">RST</span></button>
+        <button class="text-gray-400 w-12 flex flex-col items-center gap-1.5 transition hover:text-gray-600 active:text-gray-800" id="btnSettings"><i class="fas fa-sliders text-lg"></i><span class="text-[9px] font-bold tracking-wide">SETTING</span></button>
+        <button class="text-gray-400 w-12 flex flex-col items-center gap-1.5 transition hover:text-gray-600 active:text-gray-800" onclick="location.reload()"><i class="fas fa-rotate-right text-lg"></i><span class="text-[9px] font-bold tracking-wide">RESET</span></button>
     </nav>
 
-    <button id="fabStart" class="fixed bottom-7 left-1/2 -translate-x-1/2 w-16 h-16 bg-emerald-600 rounded-full shadow-lg shadow-emerald-600/40 text-white flex items-center justify-center text-2xl z-30 transition transform active:scale-95 hover:bg-emerald-500"><i class="fas fa-play ml-1"></i></button>
-    <button id="fabStop" class="hidden fixed bottom-7 left-1/2 -translate-x-1/2 w-16 h-16 bg-red-500 rounded-full shadow-lg shadow-red-500/40 text-white flex items-center justify-center text-2xl z-30 transition transform active:scale-95"><i class="fas fa-stop"></i></button>
+    <button id="fabStart" class="fixed bottom-8 left-1/2 -translate-x-1/2 w-14 h-14 bg-emerald-600 rounded-full shadow-[0_8px_20px_rgba(5,150,105,0.4)] text-white flex items-center justify-center text-xl z-30 transition transform active:scale-90 hover:bg-emerald-500"><i class="fas fa-play ml-1"></i></button>
+    <button id="fabStop" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 w-14 h-14 bg-red-500 rounded-full shadow-[0_8px_20px_rgba(239,68,68,0.4)] text-white flex items-center justify-center text-xl z-30 transition transform active:scale-90"><i class="fas fa-stop"></i></button>
 
-    <div id="premiumModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6" onclick="this.classList.add('hidden')">
-        <div class="bg-white p-6 rounded-3xl text-center w-full max-w-sm shadow-2xl transform transition-all scale-100 relative overflow-hidden" onclick="event.stopPropagation()">
-            <div class="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full opacity-20 blur-2xl"></div>
-            <div class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-inner border border-emerald-200 relative z-10">
-                <i class="fas fa-rocket text-2xl text-emerald-500"></i>
+    <div id="premiumModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 opacity-0 transition-opacity duration-300" onclick="closeModal('premiumModal')">
+        <div class="bg-white p-7 rounded-[2rem] text-center w-full max-w-[320px] shadow-2xl transform transition-all scale-95 relative overflow-hidden modal-enter" onclick="event.stopPropagation()">
+            <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full mx-auto flex items-center justify-center mb-4 border-4 border-white shadow-sm relative z-10">
+                <i class="fas fa-gem text-2xl"></i>
             </div>
-            <h3 class="font-bold text-xl text-gray-800 mb-1 relative z-10">Ups, Limit Habis! 😅</h3>
-            <p id="modalMessage" class="hidden text-xs text-red-500 font-bold mb-3 relative z-10"></p>
-            <p class="text-sm text-gray-600 mb-5 leading-relaxed relative z-10">Biar kegiatan <i>hunting</i> bug dan scan subdomain kamu nggak kepotong, yuk <b>Top-Up Poin</b> sekarang!<br><br>Cukup dengan <b>Rp 5.000</b>, kamu langsung dapat <b>50 Poin</b> lho.</p>
-            <div class="bg-gray-50 p-3 rounded-xl border-2 border-dashed border-gray-200 mb-6 inline-block relative z-10 w-full">
-                <div class="font-bold text-blue-500 text-sm mb-1"><i class="fas fa-wallet"></i> TRANSFER DANA</div>
-                <div class="text-gray-800 font-mono text-xl tracking-wider font-bold select-all">081775700114</div>
-                <p class="text-[10px] font-bold text-gray-400 mt-1">A.N. MAS ANSOR</p>
+            <h3 class="font-extrabold text-xl text-gray-900 mb-1 relative z-10">Limit Habis!</h3>
+            <p id="modalMessage" class="hidden text-[11px] text-red-500 font-bold mb-4 bg-red-50 py-1.5 px-3 rounded-lg inline-block relative z-10"></p>
+            
+            <p class="text-xs text-gray-500 mb-6 leading-relaxed relative z-10 font-medium px-2">
+                Sesi gratis Anda telah habis. Dapatkan akses VIP tanpa batas gangguan hanya dengan <b>Rp 5.000</b> (50 Poin).
+            </p>
+            
+            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6 relative z-10">
+                <div class="font-bold text-blue-600 text-[10px] tracking-widest mb-1.5 uppercase">Kirim ke DANA / QRIS</div>
+                <div class="text-gray-900 font-mono text-xl tracking-wider font-black select-all">081775700114</div>
+                <p class="text-[9px] font-bold text-gray-400 mt-1 uppercase">A.N. Mas Ansor</p>
             </div>
-            <a href="https://wa.me/6281775700114?text=Halo%20Mas%20Ansor!%20%F0%9F%91%8B%20Saya%20mau%20top-up%2050%20Poin%20(Rp%205.000)%20untuk%20Scanner%20Pro.%20Saya%20akan%20transfer%20ke%20DANA%20081775700114%20ya.%20Tunggu%20sebentar%2C%20buktinya%20segera%20saya%20kirimkan%20ke%20sini!%20%F0%9F%99%8F" target="_blank" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30 active:scale-95 transition flex items-center justify-center gap-2 mb-3 relative z-10">
-                <i class="fab fa-whatsapp text-lg"></i> Chat Mas Ansor Sekarang
+            
+            <a href="https://wa.me/6281775700114?text=Halo%20Mas%20Ansor!%20%F0%9F%91%8B%20Saya%20mau%20top-up%2050%20Poin%20(Rp%205.000)%20untuk%20Scanner%20Pro." target="_blank" class="w-full py-3.5 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-bold text-[11px] shadow-lg active:scale-95 transition flex items-center justify-center gap-2 mb-4 relative z-10">
+                <i class="fab fa-whatsapp text-emerald-400 text-sm"></i> Konfirmasi ke Admin
             </a>
-            <button onclick="document.getElementById('premiumModal').classList.add('hidden')" class="text-xs text-gray-400 hover:text-gray-600 font-bold underline transition relative z-10">Nanti Saja</button>
+            <button onclick="closeModal('premiumModal')" class="text-[10px] text-gray-400 hover:text-gray-600 font-bold uppercase tracking-wider transition relative z-10">Tutup Halaman</button>
         </div>
     </div>
 
-    <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-end transition-opacity">
-        <div class="bg-white w-full p-6 rounded-t-3xl shadow-2xl animate-[slideIn_0.3s_ease-out]">
+    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-40 flex items-end transition-opacity duration-300 opacity-0" onclick="closeModal('settingsModal')">
+        <div class="bg-white w-full p-7 rounded-t-[2rem] shadow-2xl modal-enter transform transition-transform" onclick="event.stopPropagation()">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-            <h3 class="font-bold text-lg text-gray-800 mb-4">Settings & Lisensi</h3>
+            <h3 class="font-extrabold text-lg text-gray-900 mb-5">Pengaturan Mesin</h3>
+            
             <div class="mb-4">
-                <label class="text-xs font-bold text-gray-500 uppercase">VPS URL</label>
-                <input type="text" id="setNodeUrl" class="w-full input-soft p-3 text-xs font-mono mt-1 text-gray-600" placeholder="http://ip-vps:3000">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">URL Server API</label>
+                <input type="text" id="setNodeUrl" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-xs font-mono mt-1.5 text-gray-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition" placeholder="http://ip-vps:3001">
             </div>
+            
             <div class="grid grid-cols-2 gap-4 mb-4">
-                <div><label class="text-xs font-bold text-gray-500 uppercase">Threads</label><input type="number" id="setThreads" value="10" class="w-full input-soft p-3 text-center font-bold mt-1"></div>
-                <div><label class="text-xs font-bold text-gray-500 uppercase">Timeout</label><input type="number" id="setTimeout" value="5000" class="w-full input-soft p-3 text-center font-bold mt-1"></div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Threads</label><input type="number" id="setThreads" value="10" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-center font-bold text-sm mt-1.5 outline-none focus:border-emerald-500 transition"></div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Timeout</label><input type="number" id="setTimeout" value="5000" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-center font-bold text-sm mt-1.5 outline-none focus:border-emerald-500 transition"></div>
             </div>
-            <div class="mb-4">
-                <label class="text-xs font-bold text-gray-500 uppercase">Ports</label>
-                <input type="text" id="setPorts" value="80,443" class="w-full input-soft p-3 font-mono text-sm mt-1 text-gray-600">
+            
+            <div class="mb-5">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Target Port</label>
+                <input type="text" id="setPorts" value="80,443" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 font-mono text-sm mt-1.5 text-gray-700 outline-none focus:border-emerald-500 transition">
             </div>
-            <div class="mb-6 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-                <label class="text-xs font-bold text-emerald-700 uppercase"><i class="fas fa-key"></i> Kode Lisensi / Poin</label>
-                <input type="text" id="setLicense" class="w-full bg-white border border-emerald-300 rounded-lg p-2 text-center font-bold text-sm mt-1 text-gray-800 focus:border-emerald-500" placeholder="Kosongkan jika main gratisan...">
+            
+            <div class="mb-6 p-4 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                <label class="text-[10px] font-bold text-yellow-400 uppercase tracking-widest flex items-center gap-1.5 mb-2"><i class="fas fa-key"></i> Kode Lisensi VIP</label>
+                <input type="text" id="setLicense" class="w-full bg-white/10 border border-gray-600 rounded-xl p-3 text-center font-bold text-sm text-white focus:border-yellow-400 outline-none placeholder-gray-500 transition" placeholder="Kosongkan jika gratisan...">
             </div>
-            <button onclick="saveSettings()" class="w-full py-3.5 bg-gray-900 text-white rounded-xl font-bold text-sm shadow-lg active:scale-95 transition">Simpan Pengaturan</button>
+            
+            <button onclick="saveSettings()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] uppercase tracking-wider shadow-[0_8px_20px_rgba(5,150,105,0.3)] active:scale-95 transition">Simpan Pengaturan</button>
         </div>
     </div>
 
     <script>
+        // PWA SERVICE WORKER REGISTRATION
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed:', err));
+            });
+        }
+
+        // --- SISTEM NOTIFIKASI ELEGAN ---
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            let icon = 'fa-info-circle'; let colors = 'bg-white border-gray-200 text-gray-800';
-            if (type === 'success') { icon = 'fa-check-circle'; colors = 'bg-white border-emerald-200 text-emerald-700 shadow-lg shadow-emerald-100/50'; }
-            if (type === 'error') { icon = 'fa-times-circle'; colors = 'bg-white border-red-200 text-red-600 shadow-lg shadow-red-100/50'; }
-            if (type === 'loading') { icon = 'fa-circle-notch fa-spin'; colors = 'bg-white border-blue-200 text-blue-600 shadow-lg shadow-blue-100/50'; }
-            toast.className = `pointer-events-auto w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border ${colors} text-xs font-bold toast-enter backdrop-blur-sm`;
-            toast.innerHTML = `<i class="fas ${icon} text-sm"></i> <span>${msg}</span>`;
+            
+            let icon = 'fa-info-circle text-blue-400'; 
+            let bgColor = 'bg-gray-900';
+            
+            if (type === 'success') { icon = 'fa-check-circle text-emerald-400'; }
+            if (type === 'error') { icon = 'fa-exclamation-circle text-red-400'; bgColor = 'bg-red-950 border border-red-900'; }
+            if (type === 'loading') { icon = 'fa-circle-notch fa-spin text-gray-300'; }
+            
+            // Filter cerdas: Menghapus URL Mentah agar tidak terlihat jelek di notifikasi
+            let cleanMsg = msg.replace(/(https?:\/\/[^\s]+)/g, '').trim();
+            if(cleanMsg === '') cleanMsg = "Terjadi kesalahan koneksi"; // Fallback jika pesan hanya berisi URL
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-5 py-3.5 rounded-2xl ${bgColor} text-white text-[11px] font-medium shadow-2xl toast-enter w-full max-w-sm border border-gray-800`;
+            toast.innerHTML = `<i class="fas ${icon} text-base"></i> <span class="leading-relaxed flex-1">${cleanMsg}</span>`;
+            
             container.appendChild(toast);
-            setTimeout(() => { toast.classList.remove('toast-enter'); toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, 3000);
+            setTimeout(() => { 
+                toast.classList.remove('toast-enter'); 
+                toast.classList.add('toast-exit'); 
+                setTimeout(() => toast.remove(), 300); 
+            }, 3000);
+        }
+
+        // --- MODAL CONTROLLER ---
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
         const CF_CIDRS = ["173.245.48.0/20","103.21.244.0/22","103.22.200.0/22","103.31.4.0/22","141.101.64.0/18","108.162.192.0/18","190.93.240.0/20","188.114.96.0/20","197.234.240.0/22","198.41.128.0/17","162.158.0.0/15","104.16.0.0/13","104.24.0.0/14","172.64.0.0/13","131.0.72.0/22"];
@@ -207,8 +264,8 @@
                 document.getElementById('freeBadge').classList.remove('hidden');
                 document.getElementById('vipBadge').classList.add('hidden');
             }
-            document.getElementById('settingsModal').classList.add('hidden');
-            showToast("Pengaturan Disimpan", "info");
+            closeModal('settingsModal');
+            showToast("Pengaturan Disimpan", "success");
         }
 
         function updateServerAuth(authData) {
@@ -220,14 +277,20 @@
             } else {
                 document.getElementById('freeBadge').classList.remove('hidden');
                 document.getElementById('vipBadge').classList.add('hidden');
-                showToast(`Info Limit: Sisa batas harian anda ${authData.limit} kali`, "info");
+                showToast(`Info: Sisa limit gratis anda ${authData.limit}`, "info");
             }
         }
 
         function triggerPremiumModal(message) {
             const msgEl = document.getElementById('modalMessage');
-            if(message) { msgEl.innerText = `Catatan Server: ${message}`; msgEl.classList.remove('hidden'); msgEl.classList.add('block'); }
-            document.getElementById('premiumModal').classList.remove('hidden');
+            if(message) { 
+                // Membersihkan link jika ada di pesan error server
+                const cleanError = message.replace(/(https?:\/\/[^\s]+)/g, '').trim();
+                msgEl.innerText = cleanError; 
+                msgEl.classList.remove('hidden'); 
+                msgEl.classList.add('block'); 
+            }
+            openModal('premiumModal');
         }
 
         const els = {
@@ -243,44 +306,35 @@
             document.querySelectorAll('.nav-item').forEach(b => { b.classList.remove('text-emerald-600'); b.classList.add('text-gray-400'); });
             if(btn) { btn.classList.remove('text-gray-400'); btn.classList.add('text-emerald-600'); }
         }
-        document.getElementById('btnSettings').onclick = () => document.getElementById('settingsModal').classList.remove('hidden');
-        document.getElementById('clearBtn').onclick = () => { els.inputs.dom.value = ''; showToast('Input dibersihkan'); };
+        
+        document.getElementById('btnSettings').onclick = () => openModal('settingsModal');
+        document.getElementById('clearBtn').onclick = () => { els.inputs.dom.value = ''; showToast('Target dibersihkan'); };
         function getFlag(cc) { return (!cc || cc==='UNK' || cc==='-') ? '🏳️' : cc.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0)+127397)); }
 
         document.getElementById('btnGrabSub').onclick = async () => {
             const raw = els.inputs.dom.value.trim();
-            if(!raw) return showToast("Isi domain utama!", 'error');
+            if(!raw) return showToast("Isi target domain utama!", 'error');
             const baseUrl = els.inputs.url.value.replace(/\/$/, '');
-            if(!baseUrl) return showToast("Setting VPS URL dulu!", 'error');
-            
+            if(!baseUrl) return showToast("Setting URL Server API dulu!", 'error');
             const licenseKey = document.getElementById('setLicense').value.trim();
-            const domains = raw.split('\n').map(x=>x.trim()).filter(x=>x);
             const batchId = "GRAB-" + Date.now(); 
-
             const btn = document.getElementById('btnGrabSub'); const oriText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...'; btn.disabled = true; 
-            showToast("Mencari subdomain ke server...", 'loading');
-            
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Loading...'; btn.disabled = true; 
+            showToast("Memindai intelijen ancaman...", 'loading');
             let newSubs = [];
-            for(const d of domains) {
+            for(const d of raw.split('\n').map(x=>x.trim()).filter(x=>x)) {
                 try {
                     const res = await fetch(`${baseUrl}/subdomain?domain=${d}&key=${licenseKey}&batch=${batchId}`);
                     const json = await res.json();
-                    
-                    if(res.status === 403 || (json.auth && !json.auth.allowed) || json.needTopup) {
-                        btn.innerHTML = oriText; btn.disabled = false;
-                        return triggerPremiumModal(json.error || (json.auth ? json.auth.error : "Limit Habis"));
-                    }
+                    if(res.status === 403 || (json.auth && !json.auth.allowed)) return triggerPremiumModal(json.error);
                     if(json.auth) updateServerAuth(json.auth);
-                    if(json.subdomains && json.subdomains.length > 0) newSubs.push(...json.subdomains);
-                    else showToast(`Pencarian API kosong untuk: ${d}`, 'error');
-                } catch(e) { showToast(`Gagal konek ke server VPS`, 'error'); }
+                    if(json.subdomains) newSubs.push(...json.subdomains);
+                } catch(e) { showToast(`Gagal merespons server`, 'error'); }
             }
-            
             if(newSubs.length > 0) {
-                els.inputs.dom.value = [...new Set([...domains, ...newSubs])].join('\n');
-                showToast(`Total ${newSubs.length} subdomain ditambahkan!`, 'success');
-            } else { showToast("Pencarian selesai, 0 hasil didapat.", 'info'); }
+                els.inputs.dom.value = [...new Set([...raw.split('\n'), ...newSubs])].join('\n');
+                showToast(`Selesai! ${newSubs.length} sub ditemukan.`, 'success');
+            } else showToast("0 hasil didapatkan.", 'info');
             btn.innerHTML = oriText; btn.disabled = false;
         };
 
@@ -288,22 +342,17 @@
 
         els.fabStart.onclick = async () => {
             let doms = els.inputs.dom.value.split('\n').map(x=>x.trim()).filter(x=>x);
-            if(!doms.length) return showToast("Isi domain!", 'error');
+            if(!doms.length) return showToast("Isi target domain!", 'error');
             const baseUrl = els.inputs.url.value.replace(/\/$/, '');
-            if(!baseUrl) return showToast("Isi URL VPS!", 'error');
-
             const licenseKey = document.getElementById('setLicense').value.trim();
             const batchId = "SCAN-" + Date.now(); 
-
             stop = false; db = []; els.list.innerHTML = '';
             els.fabStart.classList.add('hidden'); els.fabStop.classList.remove('hidden');
             switchTab('viewResults');
-            document.getElementById('statusBadge').className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-600 border border-emerald-200 animate-pulse";
-            document.getElementById('statusBadge').innerText = "RUNNING";
-            
+            document.getElementById('statusBadge').innerText = "SCANNING";
+            document.getElementById('statusBadge').classList.replace('text-gray-500', 'text-emerald-600');
             const ports = els.inputs.ports.value.split(',').map(Number);
             let count = 0; let accessDenied = false;
-            
             const worker = async () => {
                 while(doms.length && !stop && !accessDenied) {
                     const dom = doms.shift();
@@ -313,50 +362,34 @@
                         const j = await r.json();
                         if(j.Answer) ips = j.Answer.filter(a=>a.type===1).map(a=>a.data);
                     } catch{}
-
                     let ipStats = [];
                     for(const ip of ips) {
                         if(stop || accessDenied) break;
                         try {
                             const r = await fetch(`${baseUrl}/tcp?ip=${ip}&ports=${ports.join(',')}&key=${licenseKey}&batch=${batchId}`);
                             const j = await r.json(); 
-                            
-                            if(r.status === 403 || (j.auth && !j.auth.allowed) || j.needTopup) {
-                                accessDenied = true;
-                                triggerPremiumModal(j.error || (j.auth ? j.auth.error : "Limit Habis"));
-                                break;
-                            }
+                            if(r.status === 403 || (j.auth && !j.auth.allowed)) { accessDenied = true; triggerPremiumModal(j.error); break; }
                             if(j.auth) updateServerAuth(j.auth);
                             ipStats.push({ ip, country: j.country||'UNK', ports: j.results||[], isCf: isCloudflare(ip) });
-                        } catch {
-                            ipStats.push({ ip, country: 'ERR', ports: [], isCf: isCloudflare(ip) });
-                        }
+                        } catch { ipStats.push({ ip, country: 'ERR', ports: [], isCf: isCloudflare(ip) }); }
                     }
-
                     if(accessDenied) break;
                     const anyOk = ipStats.some(s => s.ports.some(p=>p.ok));
-                    const status = anyOk ? 'Active' : 'Dead';
-                    const item = { dom, ipStats, status };
+                    const item = { dom, ipStats, status: anyOk?'Active':'Dead' };
                     db.push(item);
                     renderCard(item);
-
                     els.stats.tot.innerText = ++count;
                     els.stats.act.innerText = db.filter(x=>x.status==='Active').length;
-                    const uniqueCf = new Set();
-                    db.forEach(d => d.ipStats.forEach(s => { if(s.isCf) uniqueCf.add(s.ip); }));
-                    els.stats.cf.innerText = uniqueCf.size;
                 }
             };
-
             await Promise.all(Array(parseInt(document.getElementById('setThreads').value)||5).fill(null).map(worker));
-            
             els.fabStart.classList.remove('hidden'); els.fabStop.classList.add('hidden');
-            document.getElementById('statusBadge').className = "px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-white";
             document.getElementById('statusBadge').innerText = "DONE";
-            if(!accessDenied) showToast("Scan Selesai!", 'success');
+            document.getElementById('statusBadge').classList.replace('text-emerald-600', 'text-gray-500');
+            if(!accessDenied && !stop) showToast("Scan Selesai!", 'success');
         };
-        
-        els.fabStop.onclick = () => { stop = true; showToast("Dihentikan", 'info'); };
+
+        els.fabStop.onclick = () => { stop = true; showToast("Scan dihentikan paksa", 'error'); };
 
         window.applyFilter = (type) => {
             currentFilter = type;
@@ -372,84 +405,39 @@
         function renderCard(d) {
             const hasCf = d.ipStats.some(s => s.isCf);
             const hasAct = d.status === 'Active';
-
-            // LOGIKA FILTER BARU
-            if (currentFilter === 'cf') {
-                if (!hasCf || !hasAct) return; // Wajib CF & Wajib Active
-            } else if (currentFilter === 'non-cf') {
-                if (hasCf || !hasAct) return; // Wajib Non-CF & Wajib Active
-            }
-            // Jika filter 'all', lewati pemeriksaan ini dan tampilkan semua
-
+            if (currentFilter === 'cf') { if (!hasCf || !hasAct) return; } 
+            else if (currentFilter === 'non-cf') { if (hasCf || !hasAct) return; }
             let rows = '';
             d.ipStats.forEach(s => {
                 const flag = getFlag(s.country);
-                const cfBadge = s.isCf ? '<span class="text-[9px] bg-orange-100 text-orange-600 px-1 rounded ml-1 border border-orange-200 font-bold">CF</span>' : '';
-                const badges = s.ports.map(p => {
-                    const color = p.ok ? (p.latency<200?'ping-fast':(p.latency<500?'ping-med':'ping-slow')) : 'bg-gray-50 text-gray-300 border-gray-200';
-                    return `<div class="px-2 py-0.5 border rounded text-[10px] font-bold ${color}">${p.port} <span class="font-normal ml-0.5 opacity-80">${p.latency>-1?p.latency:''}</span></div>`
-                }).join('');
-                rows += `
-                <div class="flex justify-between items-start py-2 border-b border-gray-50 last:border-0">
-                    <div>
-                        <div class="text-xs font-mono text-gray-600 select-all font-bold flex items-center">${s.ip} ${cfBadge}</div>
-                        <div class="text-[10px] text-gray-400 flex items-center gap-1 mt-0.5">${flag} ${s.country}</div>
-                    </div>
-                    <div class="flex gap-1 flex-wrap justify-end max-w-[60%]">${badges}</div>
-                </div>`;
+                const cfBadge = s.isCf ? '<span class="text-[8px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded ml-1.5 font-bold uppercase tracking-widest border border-orange-200">CF</span>' : '';
+                const badges = s.ports.map(p => `<div class="px-2 py-0.5 border rounded text-[10px] font-bold shadow-sm ${p.ok?(p.latency<500?'ping-fast':'ping-med'):'bg-gray-50 text-gray-300 border-gray-200'}">${p.port} <span class="font-normal opacity-70 ml-0.5">${p.latency>-1?p.latency:''}</span></div>`).join('');
+                rows += `<div class="flex justify-between items-start py-2 border-b border-gray-50 last:border-0"><div><div class="text-[11px] font-mono select-all font-bold flex items-center text-gray-700">${s.ip} ${cfBadge}</div><div class="text-[9px] text-gray-400 flex items-center gap-1 mt-1 uppercase font-bold tracking-widest">${flag} ${s.country}</div></div><div class="flex gap-1.5 flex-wrap justify-end max-w-[60%]">${badges}</div></div>`;
             });
-            const html = `<div class="glass-card p-4 mb-3 item-enter"><div class="flex justify-between items-center mb-3"><div class="font-bold text-sm text-gray-800 truncate w-48">${d.dom}</div><div class="text-[10px] font-bold px-2.5 py-1 rounded-full ${hasAct?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-400'}">${d.status}</div></div><div class="bg-white border border-gray-100 rounded-xl p-1 shadow-inner">${rows||'<div class="text-xs text-gray-300 p-3 text-center italic">No IP</div>'}</div></div>`;
+            const html = `<div class="bg-white border border-gray-100 rounded-[1rem] p-4 mb-3 shadow-sm item-enter"><div class="flex justify-between items-center mb-3"><div class="font-bold text-xs text-gray-800 truncate w-48">${d.dom}</div><div class="text-[9px] font-bold px-2 py-1 rounded-md uppercase tracking-widest ${hasAct?'bg-emerald-50 text-emerald-600 border border-emerald-100':'bg-gray-50 text-gray-400 border border-gray-100'}">${d.status}</div></div><div class="bg-gray-50/50 rounded-xl p-2">${rows}</div></div>`;
             els.list.insertAdjacentHTML('afterbegin', html);
         }
 
-        // FITUR SALIN AKTIF (Untuk APK)
         document.getElementById('btnCopyActive').onclick = () => {
             const activeItems = db.filter(x => x.status === 'Active');
-            if(!activeItems.length) return showToast("Tidak ada IP aktif untuk disalin!", 'error');
-            
-            let textToCopy = "=== HASIL IP AKTIF ===\n\n";
+            if(!activeItems.length) return showToast("Belum ada data IP aktif!", 'error');
+            let txt = "=== IP AKTIF SCANNER PRO ===\n\n";
             activeItems.forEach(d => {
-                textToCopy += `Domain: ${d.dom}\n`;
-                d.ipStats.forEach(s => {
-                    if(s.ports.some(p => p.ok)) {
-                        const ports = s.ports.filter(p => p.ok).map(p => p.port).join(', ');
-                        const isCf = s.isCf ? '(CF)' : '(NON-CF)';
-                        textToCopy += `IP: ${s.ip} ${isCf} - Port: ${ports}\n`;
-                    }
-                });
-                textToCopy += "------------------------\n";
+                txt += `Target: ${d.dom}\n`;
+                d.ipStats.forEach(s => { if(s.ports.some(p=>p.ok)) txt += `IP: ${s.ip} ${s.isCf?'[CF]':'[NON-CF]'}\n`; });
+                txt += `-------------------\n`;
             });
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showToast("Data tersalin ke clipboard!", 'success');
-            }).catch(() => {
-                showToast("Gagal menyalin data", 'error');
-            });
+            navigator.clipboard.writeText(txt).then(() => showToast("IP Aktif tersalin ke Clipboard!", 'success'));
         };
 
-        // FITUR SHARE (Untuk APK)
         document.getElementById('btnShareData').onclick = () => {
-            if(!db.length) return showToast("Belum ada data scan!", 'error');
-            
-            let textData = "=== REKAP SCAN SCANNER PRO ===\n\n";
-            db.forEach(d => {
-                textData += `[${d.status}] ${d.dom}\n`;
-                d.ipStats.forEach(s => {
-                    const statusPort = s.ports.map(p => `${p.port}:${p.ok ? p.latency+'ms' : 'RTO'}`).join(' | ');
-                    textData += ` - ${s.ip} [${s.country}] -> ${statusPort}\n`;
-                });
-                textData += "\n";
-            });
-
+            if(!db.length) return showToast("Lakukan scan terlebih dahulu!", 'error');
+            let txt = "=== HASIL SCANNER PRO ===\n\n";
+            db.forEach(d => { txt += `[${d.status}] ${d.dom}\n`; d.ipStats.forEach(s => { txt += ` - ${s.ip} [${s.country}]\n`; }); });
             if (navigator.share) {
-                navigator.share({
-                    title: 'Hasil Scan Scanner Pro',
-                    text: textData
-                }).catch(err => console.log('Share error:', err));
+                navigator.share({ title: 'Scanner Pro', text: txt }).catch(()=>{});
             } else {
-                navigator.clipboard.writeText(textData).then(() => {
-                    showToast("Hasil disalin! Share otomatis tidak didukung HP ini.", 'info');
-                });
+                navigator.clipboard.writeText(txt).then(() => showToast("Teks disalin (Perangkat tidak dukung Share)", 'info'));
             }
         };
     </script>
