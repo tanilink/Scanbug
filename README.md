@@ -55,7 +55,7 @@ Anda dapat mendukung pengembang melalui:
 * 📱 **QRIS (GPN):** Scan barcode di bawah ini menggunakan seluruh aplikasi *e-wallet* (DANA, OVO, GoPay, ShopeePay) atau *m-banking* Anda.
 
 <p align="center">
-  <img src="qris.jpg" alt="QRIS Donasi Mas Angga Store" width="350" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+  <img src="qris.jpeg" alt="QRIS Donasi Mas Angga Store" width="350" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 </p>
 <p align="center"><b>MAS ANGGA STORE, PULSA & INTERNET</b></p>
 
