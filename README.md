@@ -42,6 +42,21 @@ Jalankan perintah sakti berikut di terminal VPS Anda:
 ```bash
 bash <(curl -Ls [https://raw.githubusercontent.com/tanilink/Scanbug/main/install.sh](https://raw.githubusercontent.com/tanilink/Scanbug/main/install.sh))
 ```
+---
+
+## 🌐 Cara Menggunakan Aplikasi (Bagi Pengguna Umum)
+
+Jika Anda tidak memiliki VPS sendiri dan hanya ingin memakai aplikasi ini langsung dari HP/Browser, Anda wajib memasukkan **URL Server API (IP Publik)** di menu pengaturan agar mesin *scanner* dapat bekerja.
+
+Belum punya IP Server-nya? Jangan khawatir! Silakan hubungi admin untuk mendapatkan **Alamat IP Server Uji Coba (Trial)** secara gratis:
+
+👉 [**KLIK DI SINI UNTUK MEMINTA IP SERVER VIA WHATSAPP**](https://wa.me/6281775700114?text=Halo%20Mas%20Ansor,%20saya%20ingin%20mencoba%20aplikasi%20Scanner%20Pro.%20Tolong%20kirimkan%20alamat%20IP%20Server-nya%20ya!)
+
+**Langkah Penggunaan:**
+1. Buka aplikasi web Scanner Pro.
+2. Masuk ke menu **SETTING** (ikon *slider* di kanan bawah).
+3. Paste alamat IP yang diberikan admin ke kolom **VPS URL** (contoh: `http://123.45.67.89:3001`).
+4. Klik **Simpan Pengaturan** dan aplikasi siap digunakan!
 
 ---
 
