@@ -41,3 +41,31 @@ Jalankan perintah sakti berikut di terminal VPS Anda:
 
 ```bash
 bash <(curl -Ls [https://raw.githubusercontent.com/tanilink/Scanbug/main/install.sh](https://raw.githubusercontent.com/tanilink/Scanbug/main/install.sh))
+```
+
+---
+
+## ☕ Dukungan & Donasi
+
+Pembuatan dan pengembangan arsitektur *tools* ini memakan waktu dan dedikasi. Jika Anda merasa *tools* ini bermanfaat untuk bisnis VPN / SSH atau kegiatan *bug hunting* Anda, dukungan Anda akan sangat berarti untuk operasional *server* dan pembaruan fitur selanjutnya!
+
+Anda dapat mendukung pengembang melalui:
+
+* 💳 **DANA / E-Wallet:** `081775700114`
+* 📱 **QRIS (GPN):** Scan barcode di bawah ini menggunakan seluruh aplikasi *e-wallet* (DANA, OVO, GoPay, ShopeePay) atau *m-banking* Anda.
+
+<p align="center">
+  <img src="qris.jpg" alt="QRIS Donasi Mas Angga Store" width="350" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</p>
+<p align="center"><b>MAS ANGGA STORE, PULSA & INTERNET</b></p>
+
+---
+
+## 📞 Kontak & Support
+
+Jika Anda mengalami kendala instalasi, menemukan *bug*, atau membutuhkan **Jasa Setup VPS & Custom Panel Bisnis**, jangan ragu untuk menghubungi saya:
+
+* 👉 [**Chat WhatsApp Support (081775700114)**](https://wa.me/6281775700114?text=Halo%20Mas,%20saya%20pengguna%20Scanner%20Pro%20v2.7%20dari%20GitHub...)
+
+---
+*Dibuat dengan ❤️ oleh Mas Angga/Ansor | 2026 © All Rights Reserved.*
